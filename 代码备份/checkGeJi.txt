@@ -1,0 +1,32 @@
+
+'歌集正确性与重复性检查与修正
+Public Sub checkGeJi(ByRef ugeji As GeJi)
+Dim i去括号1 As Integer
+Dim i去括号2 As Integer
+If ugeji.N = 0 Then Exit Sub
+    With ugeji
+        '去掉/n 因为从网页得来的名称有带/n换行符 但VB识别不了是换行符
+        For i = 1 To .N
+            If Len(.Gsong(i).mTitle) <= 0 Then Call deleteSong(ugeji, i)
+            .Gsong(i).mTitle = Replace(.Gsong(i).mTitle, Chr(10), "")
+            .Gsong(i).mSinger = Replace(.Gsong(i).mSinger, Chr(10), "")
+            .Gsong(i).mTitle = Replace(.Gsong(i).mTitle, Chr(13), "")
+            .Gsong(i).mSinger = Replace(.Gsong(i).mSinger, Chr(13), "")
+        '去掉歌曲名中的括号
+        i去括号 = InStr(.Gsong(i).mTitle, "(")
+        If i去括号 <> 0 Then '歌曲名存在括号
+            .Gsong(i).mTitle = Left(.Gsong(i).mTitle, i去括号 - 2) '暂时把括号 “（”后面的全部删掉
+        End If
+        Next i
+        '歌曲去重！
+        For i = 1 To .N - 1
+            For j = i + 1 To .N
+                If .Gsong(j).mTitle = .Gsong(i).mTitle Then  '发现有歌名重复的
+                    If .Gsong(j).mSinger = .Gsong(i).mSinger Or .Gsong(j).mSinger = "" Then   '歌手重复
+                        Call deleteSong(ugeji, j) '删除该歌曲
+                    End If
+                End If
+            Next j
+        Next i
+    End With
+End Sub
